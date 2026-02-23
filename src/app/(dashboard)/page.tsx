@@ -1,0 +1,20 @@
+import { auth } from "@/lib/auth";
+import { HomeView } from "@/modules/home/views/home-view";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+
+const Page = async () => {
+  // calls the auth API to fetch session data on the server
+  const session = await auth.api.getSession({
+    //Passes the request headers (which contain the session cookie/token) to verify the user
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/sign-in");
+  }
+
+  return <HomeView />;
+};
+
+export default Page;
