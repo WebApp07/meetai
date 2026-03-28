@@ -5,6 +5,7 @@ import { agents } from "@/db/schema";
 // baseProcedure → base procedure configuration (middleware, context, auth, etc.)
 
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
+import { TRPCError } from "@trpc/server";
 
 // Create a tRPC router for all agent-related API procedures
 export const agentsRouter = createTRPCRouter({
