@@ -2,22 +2,40 @@
 import { db } from "@/db";
 // Import the agents table schema
 import { agents } from "@/db/schema";
+import { eq } from "drizzle-orm";
 // baseProcedure → base procedure configuration (middleware, context, auth, etc.)
 
-import { baseProcedure, createTRPCRouter } from "@/trpc/init";
-import { TRPCError } from "@trpc/server";
+import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { agentsInsertSchema } from "../schemas";
+import z from "zod";
 
-// Create a tRPC router for all agent-related API procedures
 export const agentsRouter = createTRPCRouter({
-  // Define a procedure called "getMany" that retrieves all agents from the database
-  getMany: baseProcedure.query(async () => {
-    // Query the database asking the database for data.
+  getOne: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const [existingAgent] = await db
+        .select()
+        .from(agents)
+        .where(eq(agents.id, input.id));
+
+      return existingAgent;
+    }),
+
+  getMany: protectedProcedure.query(async () => {
     const data = await db.select().from(agents);
 
-    //await new Promise((resolve) => setTimeout(resolve, 5000));
-    //throw new TRPCError({ code: "BAD_REQUEST" });
-
-    // Return the result to the client
     return data;
   }),
+  create: protectedProcedure
+    .input(agentsInsertSchema)
+    .mutation(async ({ input, ctx }) => {
+      const [createdAgent] = await db
+        .insert(agents)
+        .values({
+          ...input,
+          userId: ctx.auth.user.id,
+        })
+        .returning();
+      return createdAgent;
+    }),
 });
