@@ -2,7 +2,7 @@
 import { db } from "@/db";
 // Import the agents table schema
 import { agents } from "@/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, getTableColumns, sql } from "drizzle-orm";
 // baseProcedure → base procedure configuration (middleware, context, auth, etc.)
 
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
@@ -24,7 +24,9 @@ export const agentsRouter = createTRPCRouter({
     }),
 
   getMany: protectedProcedure.query(async () => {
-    const data = await db.select().from(agents);
+    const data = await db
+      .select({ meetingCount: sql<number>`5`, ...getTableColumns(agents) })
+      .from(agents);
 
     return data;
   }),
