@@ -4,11 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 const Page = async () => {
-  //const data = await caller.hello({ text: "Amine from server" });
-
-  // calls the auth API to fetch session data on the server
   const session = await auth.api.getSession({
-    //Passes the request headers (which contain the session cookie/token) to verify the user
     headers: await headers(),
   });
 
