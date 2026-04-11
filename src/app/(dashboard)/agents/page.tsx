@@ -11,8 +11,15 @@ import { AgentsListHeader } from "@/modules/agents/ui/views/components/agents-li
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import type { SearchParams } from "nuqs";
+import { loadSearchParams } from "@/modules/agents/params";
 
-const Page = async () => {
+interface Props {
+  searchParams: Promise<SearchParams>;
+}
+
+const Page = async ({ searchParams }: Props) => {
+  const filters = await loadSearchParams(searchParams);
   const session = await auth.api.getSession({
     //Passes the request headers (which contain the session cookie/token) to verify the user
     headers: await headers(),
@@ -24,7 +31,11 @@ const Page = async () => {
   // temporarily store fetched data on the server
   const queryClient = getQueryClient();
   // fetch data and store it in the queryClient cache
-  void queryClient.prefetchQuery(trpc.agents.getMany.queryOptions());
+  void queryClient.prefetchQuery(
+    trpc.agents.getMany.queryOptions({
+      ...filters,
+    }),
+  );
 
   return (
     // HydrationBoundary sends the server cache to the browser
