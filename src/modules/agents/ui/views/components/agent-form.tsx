@@ -52,6 +52,27 @@ export const AgentForm: React.FC<AgentFormProps> = ({
     }),
   );
 
+  const updateAgent = useMutation(
+    trpc.agents.update.mutationOptions({
+      onSuccess: async () => {
+        // ✅ refresh list
+        await queryClient.invalidateQueries(
+          trpc.agents.getMany.queryOptions({}),
+        );
+
+        // ✅ refresh THIS agent (IMPORTANT FIX)
+        await queryClient.invalidateQueries(
+          trpc.agents.getOne.queryOptions({}),
+        );
+
+        onSuccess?.();
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    }),
+  );
+
   const form = useForm<z.infer<typeof agentsInsertSchema>>({
     resolver: zodResolver(agentsInsertSchema),
     defaultValues: {
@@ -61,11 +82,11 @@ export const AgentForm: React.FC<AgentFormProps> = ({
   });
 
   const isEdit = !!initialValues?.id;
-  const isPending = createAgent.isPending;
+  const isPending = createAgent.isPending || updateAgent.isPending;
 
   const onSubmit = (values: z.infer<typeof agentsInsertSchema>) => {
     if (isEdit) {
-      console.log("TODO: Update Agent");
+      updateAgent.mutate({ ...values, id: initialValues.id });
     } else {
       createAgent.mutate(values);
     }
