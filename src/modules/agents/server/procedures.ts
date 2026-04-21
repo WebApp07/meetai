@@ -110,7 +110,7 @@ export const agentsRouter = createTRPCRouter({
       const totalPages = Math.ceil(total.count / pageSize);
 
       return {
-        item: data,
+        items: data,
         total: total.count,
         totalPages,
       };
