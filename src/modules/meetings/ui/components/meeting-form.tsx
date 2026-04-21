@@ -99,7 +99,7 @@ export const MeetingForm: React.FC<MeetingFormProps> = ({
     }
   };
 
-  const agentOptions = (agents.data?.item ?? []).map((agent) => ({
+  const agentOptions = (agents.data?.items ?? []).map((agent) => ({
     id: agent.id,
     value: agent.id,
     children: (

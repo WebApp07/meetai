@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { ChevronDownIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -40,7 +40,30 @@ export const CommandSelect = ({
   emptyMessage,
 }: Props) => {
   const [open, setOpen] = useState(false);
+  const [localSearch, setLocalSearch] = useState("");
   const selectedOption = options.find((option) => option.value === value);
+
+  // Reset local search when dialog opens
+  useEffect(() => {
+    if (open) {
+      setLocalSearch("");
+      onSearch?.("");
+    }
+  }, [open, onSearch]);
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      // Also clear when closing (optional)
+      setLocalSearch("");
+      onSearch?.("");
+    }
+  };
+
+  const handleSearch = (searchValue: string) => {
+    setLocalSearch(searchValue);
+    onSearch?.(searchValue);
+  };
 
   return (
     <>
@@ -58,15 +81,15 @@ export const CommandSelect = ({
         <ChevronDownIcon />
       </Button>
 
-      <CommandResponsiveDialog open={open} onOpenChange={setOpen}>
-        {/* ✅ Required for screen readers */}
+      <CommandResponsiveDialog open={open} onOpenChange={handleOpenChange}>
         <DialogTitle asChild>
           <VisuallyHidden>{placeholder}</VisuallyHidden>
         </DialogTitle>
 
         <CommandInput
           placeholder="Search..."
-          onValueChange={onSearch} // ✅ Triggers parent search
+          value={localSearch}
+          onValueChange={handleSearch}
         />
         <CommandList>
           {loading ? (
@@ -97,6 +120,8 @@ export const CommandSelect = ({
                 key={option.id}
                 onSelect={() => {
                   onSelect(option.value);
+                  setLocalSearch("");
+                  onSearch?.("");
                   setOpen(false);
                 }}
               >
