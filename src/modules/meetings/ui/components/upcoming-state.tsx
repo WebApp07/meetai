@@ -11,8 +11,8 @@ interface Props {
 
 export const UpcomingState = ({
   meetingId,
-  onCacelMeeting,
-  isCancelling,
+  onCancelMeeting,
+  isCancelled,
 }: Props) => {
   return (
     <div className="bg-white rounded-lg px-4 py-5 flex flex-col gap-y-8 items-center justify-center">
@@ -25,13 +25,13 @@ export const UpcomingState = ({
         <Button
           variant="secondary"
           className="w-full lg:w-auto"
-          onClick={onCacelMeeting}
-          disabled={isCancelling}
+          onClick={onCancelMeeting}
+          disabled={isCancelled}
         >
           <BanIcon />
           Cancel meeting
         </Button>
-        <Button disabled={isCancelling} asChild className="w-full lg:w-auto">
+        <Button disabled={isCancelled} asChild className="w-full lg:w-auto">
           <Link href={`/call/${meetingId}`}>
             <VideoIcon />
             Start meeting
